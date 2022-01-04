@@ -10,7 +10,7 @@ public class Constants {
             Direction.SOUTHWEST, Direction.NORTHWEST, };
     public static final Direction[] CARD_DIRECTIONS = { Direction.NORTH, Direction.EAST, Direction.SOUTH,
             Direction.WEST, };
-    public static final RobotType[] SPAWNABLE_ROBOTS = { };
+    public static final RobotType[] SPAWNABLE_ROBOTS = {  };
 
     //format: public static final int STANDARD_DEFEND_POLI_CONVICTION = 20;
 }

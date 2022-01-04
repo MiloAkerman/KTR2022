@@ -9,6 +9,7 @@ public strictfp class RobotPlayer {
     static Team myTeam;
     static Team oppTeam;
     static int turnCount = 0;
+    static final Random rng = new Random(1979);
 
     /**
      * run() is the method that is called when a robot is instantiated in the
@@ -20,30 +21,54 @@ public strictfp class RobotPlayer {
         myTeam = rc.getTeam();
         oppTeam = rc.getTeam().opponent();
 
+        switch(rc.getType()) {
+            case ARCHON:
+                Archon.setup(rc);
+                break;
+            case LABORATORY:
+                Laboratory.setup();
+                break;
+            case WATCHTOWER:
+                Watchtower.setup();
+                break;
+            case MINER:
+                Miner.setup();
+                break;
+            case BUILDER:
+                Builder.setup();
+                break;
+            case SOLDIER:
+                Soldier.setup();
+                break;
+            case SAGE:
+                Sage.setup();
+                break;
+        }
+
         while(true) {
             turnCount += 1;
             try { // no blowing up on my watch
                 switch(rc.getType()) {
                     case ARCHON:
-                        Archon.setup();
+                        Archon.run(rc);
                         break;
                     case LABORATORY:
-                        Laboratory.setup();
+                        Laboratory.run();
                         break;
                     case WATCHTOWER:
-                        Watchtower.setup();
+                        Watchtower.run();
                         break;
                     case MINER:
-                        Miner.setup();
+                        Miner.run();
                         break;
                     case BUILDER:
-                        Builder.setup();
+                        Builder.run();
                         break;
                     case SOLDIER:
-                        Soldier.setup();
+                        Soldier.run();
                         break;
                     case SAGE:
-                        Sage.setup();
+                        Sage.run();
                         break;
                 }
             } catch(GameActionException e) {
