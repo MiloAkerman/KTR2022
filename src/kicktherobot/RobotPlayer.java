@@ -1,16 +1,19 @@
-package burntherobot;
+package kicktherobot;
 
 import battlecode.common.*;
 
 import java.util.Random;
 
-// v2 is focused on mage fury
+// if all goes right, v3 (self-titled) should future-proof code and implement a working strategy. I have three days.
+// "an understandable price to pay for readability" ~ me, on bytecode optimization
 public strictfp class RobotPlayer {
     static RobotController rc;
     static Team myTeam;
     static Team oppTeam;
     static int turnCount = 0;
+    static int spawnTurnCount = 0;
     static final Random rng = new Random(1979);
+    static final Random trueRng = new Random();
 
     static int width, height;
 
@@ -25,6 +28,8 @@ public strictfp class RobotPlayer {
         oppTeam = rc.getTeam().opponent();
         width = rc.getMapWidth();
         height = rc.getMapHeight();
+        turnCount = rc.getRoundNum();
+
 
         switch(rc.getType()) {
             case ARCHON:
@@ -52,6 +57,7 @@ public strictfp class RobotPlayer {
 
         while(true) {
             turnCount += 1;
+            spawnTurnCount += 1;
             try { // no blowing up on my watch
                 switch(rc.getType()) {
                     case ARCHON:

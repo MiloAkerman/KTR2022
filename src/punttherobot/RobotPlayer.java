@@ -1,15 +1,17 @@
-package burntherobot;
+package punttherobot;
 
 import battlecode.common.*;
 
 import java.util.Random;
 
-// v2 is focused on mage fury
+// thanks to v3 me for making a functional bot. v4 is strategy & watchtowers
+// "MTS moment"
 public strictfp class RobotPlayer {
     static RobotController rc;
     static Team myTeam;
     static Team oppTeam;
     static int turnCount = 0;
+    static int spawnTurnCount = 0;
     static final Random rng = new Random(1979);
 
     static int width, height;
@@ -25,6 +27,7 @@ public strictfp class RobotPlayer {
         oppTeam = rc.getTeam().opponent();
         width = rc.getMapWidth();
         height = rc.getMapHeight();
+        turnCount = rc.getRoundNum();
 
         switch(rc.getType()) {
             case ARCHON:
@@ -51,7 +54,8 @@ public strictfp class RobotPlayer {
         }
 
         while(true) {
-            turnCount += 1;
+            turnCount = rc.getRoundNum();
+            spawnTurnCount += 1;
             try { // no blowing up on my watch
                 switch(rc.getType()) {
                     case ARCHON:

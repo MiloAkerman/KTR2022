@@ -1,55 +1,54 @@
 package burntherobot;
 
 import battlecode.common.*;
-import burntherobot.Constants.*;
-import burntherobot.MapLocation;
+import scala.collection.immutable.Stream;
 
 enum Role {
     ATTACK,
     SCOUT,
     GATHER,
     ALPHA_RUSH,
-    BETA_RUSH
-};
-enum Flag {
-    DROID_INIT(5);
-
-    private final int value;
-    Flag(int value) {
-        this.value = value;
-    }
-    public int getValue() {
-        return value;
-    }
+    BETA_RUSH,
+    NONE
 }
 
 public class Archon extends Unit {
-    static int scoutFinishedRound = 0;
-    static boolean scoutWasFinished = false;
+    static boolean hasBuiltFirstMiner = false;
 
     static Direction safestDirection;
     static Direction[] frontlines = new Direction[4];
     static Role currRole;
     public static void setup() throws GameActionException {
         currRole = Role.GATHER;
-        coords = rc.getLocation();
-        home = coords;
+        for(int i = 0; i < 4; i++) {
+            int foo = Constants.Flag.MINER_GROUPS.getValue()+(i*(Constants.MAX_GROUPS_PER_ARCHON+1)); //is this the real life? is this just fantasy?
+            System.out.println("Printed " + rc.getID() + " to " + foo);
+            if(rc.readSharedArray(foo) == 0) {
+                rc.writeSharedArray(foo, rc.getID());
+                break;
+            }
+        }
     }
 
     public static void run() throws GameActionException {
-        if(RobotPlayer.turnCount == Constants.GATHER_INIT_MATERIALS_THRESHOLD) {
-            currRole = Role.SCOUT;
-        } else if(scoutFinishedRound != 0 && !scoutWasFinished) {
-            currRole = Role.ATTACK;
-            scoutWasFinished = true;
-        } else if(scoutWasFinished && RobotPlayer.turnCount == scoutFinishedRound + Constants.RUSH_INIT_THRESHOLD) {
-            currRole = Role.ALPHA_RUSH;
-        }
+        if(turnCount >= 200) currRole = Role.NONE;
 
         if(currRole == Role.GATHER) {
-            rc.buildRobot(RobotType.MINER, Constants.DIRECTIONS[RobotPlayer.turnCount % 8]);
+            if(rc.canBuildRobot(RobotType.MINER, Constants.DIRECTIONS[RobotPlayer.turnCount % 8]) && rng.nextInt(20) <= 2) {
+                if(hasBuiltFirstMiner){ //(rng.nextInt(8) != 1) {
+                    sendInitPulse(0);
+                } else {
+                    System.out.println("Leader made!");
+                    sendInitPulse(1);
+                    hasBuiltFirstMiner = true;
+                }
+                    rc.buildRobot(RobotType.MINER, Constants.DIRECTIONS[RobotPlayer.turnCount % 8]);
+            }
         } else if (currRole == Role.SCOUT) {
-            rc.buildRobot(RobotType.MINER, Constants.DIRECTIONS[RobotPlayer.turnCount % 8]);
+            if(rc.canBuildRobot(RobotType.MINER, Constants.DIRECTIONS[RobotPlayer.turnCount % 8])) {
+                sendInitPulse(2 + (RobotPlayer.turnCount % 8));
+                rc.buildRobot(RobotType.MINER, Constants.DIRECTIONS[RobotPlayer.turnCount % 8]);
+            }
         } else if (currRole == Role.ATTACK) {
             rc.buildRobot(RobotType.SOLDIER, frontlines[RobotPlayer.turnCount % frontlines.length]);
         } else if (currRole == Role.ALPHA_RUSH) {
@@ -63,10 +62,11 @@ public class Archon extends Unit {
         }
     }
 
-    public static void sendInitPulse(int role) {
+    public static void sendInitPulse(int role) throws GameActionException {
         MapLocation loc = rc.getLocation();
-        int formattedLoc = (loc.x)*width+(loc.y);
-        int pulse = (formattedLoc << 4) | role;
-        rc.writeSharedArray(Flag.DROID_INIT.getValue(), pulse);
+        int archonID = rc.getID();
+        int pulse = (archonID << 4) | role;
+        rc.writeSharedArray(Constants.Flag.DROID_INIT.getValue(), pulse);
+        System.out.println("Sent " + archonID);
     }
 }

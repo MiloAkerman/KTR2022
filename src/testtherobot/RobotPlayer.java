@@ -1,4 +1,4 @@
-package burntherobot;
+package testtherobot;
 
 import battlecode.common.*;
 
@@ -20,11 +20,14 @@ public strictfp class RobotPlayer {
      **/
     @SuppressWarnings("unused")
     public static void run(RobotController rc) throws GameActionException {
+        System.out.println("foo");
         RobotPlayer.rc = rc;
         myTeam = rc.getTeam();
         oppTeam = rc.getTeam().opponent();
         width = rc.getMapWidth();
         height = rc.getMapHeight();
+
+        rc.setIndicatorString("hello world!");
 
         switch(rc.getType()) {
             case ARCHON:
